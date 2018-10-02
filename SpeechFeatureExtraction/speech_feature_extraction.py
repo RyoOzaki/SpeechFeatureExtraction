@@ -1,12 +1,12 @@
 import numpy as np
-from math import floor, ceil, log2, max
+from math import floor, ceil, log2
 from python_speech_features import mfcc as psf_mfcc
 from python_speech_features import delta as psf_delta
 
 def _load_label_list(files, sp=None):
     s = set()
     for f in files:
-        raw = _load_raw_label(f)
+        raw_label = _load_raw_label(f)
         s |= set([raw[2] for raw in raw_label])
     l = list(s)
     l.sort()
@@ -31,7 +31,7 @@ def _label_cord(label_file, label_list, length, window_frame, step_frame, init_v
     raw_labels = _load_raw_label(label_file)
     for b,e,l in raw_labels:
         left = int(max(0, floor((2*b-window_frame)/(2*step_frame))))
-        right = int(ceil((2*e-window_frame)/(2*s)))
+        right = int(ceil((2*e-window_frame)/(2*step_frame)))
         label_ary[left:right] = label_list.index(l)
     return label_ary
 
@@ -49,7 +49,7 @@ class Extractor(object):
     }
 
     def __init__(self, wav_loader, phn_list=None, wrd_list=None, delta_cording_param=2, **kwargs):
-        self._mfcc_cording_params = dict(_default_mfcc_cording_params.copy(), **kwargs)
+        self._mfcc_cording_params = dict(Extractor._default_mfcc_cording_params.copy(), **kwargs)
         self._delta_cording_param = delta_cording_param
         self._loader = wav_loader
         self._phn  = phn_list
@@ -63,12 +63,12 @@ class Extractor(object):
     def word_list(self):
         return self._wrd
 
-    def load_phn_list(self, phn_files, **kwargs):
-        self._phn = _load_raw_label(phn_files, **kwargs)
+    def load_phoneme_list(self, phn_files, **kwargs):
+        self._phn = _load_label_list(phn_files, **kwargs)
         return self._phn
 
-    def load_phn_list(self, wrd_files, **kwargs):
-        self._wrd = _load_raw_label(wrd_files, **kwargs)
+    def load_word_list(self, wrd_files, **kwargs):
+        self._wrd = _load_label_list(wrd_files, **kwargs)
         return self._wrd
 
     def load(self, wav_file, phn_file, wrd_file):
