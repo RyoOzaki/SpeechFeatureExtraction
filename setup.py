@@ -1,0 +1,13 @@
+from setuptools import setup, find_packages
+
+setup(
+    name='SpeechFeatureExtraction',
+    version='0.0.1',
+    description='Package of the speech feature extraction',
+    author='Ryo Ozaki',
+    author_email='ryo.ozaki@em.ci.ritsumei.ac.jp',
+    url='https://github.com/RyoOzaki/SparseAutoencoder',
+    license=license,
+    install_requires=['numpy', 'scipy', 'python-speech-features', 'sphfile'],
+    packages=['SpeechFeatureExtraction', 'SpeechFeatureExtraction.util']
+)
