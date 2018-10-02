@@ -27,7 +27,7 @@ def _load_raw_label(f):
     return raw_label
 
 def _label_cord(label_file, label_list, length, window_frame, step_frame, init_val=0):
-    label_ary = np.ones(length) * init_val
+    label_ary = np.ones(length, dtype=int) * init_val
     raw_labels = _load_raw_label(label_file)
     for b,e,l in raw_labels:
         left = int(max(0, floor((2*b-window_frame)/(2*step_frame))))
