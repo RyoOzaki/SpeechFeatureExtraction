@@ -97,7 +97,7 @@ class Extractor(object):
         data = applyPreEmphasis(data, preemph)
         data = applyWindow(data, np.hamming)
         spec = np.abs(np.fft.fft(data, nfft, axis=1))[:, :nfft//2]
-        melfilterbank, _ = melFilterBank(fs, nfft, numcep)
+        melfilterbank, _ = melFilterBank(fs, nfft, numcep+1)
         melspec = np.log10(np.dot(spec, melfilterbank.T))
         melceps = scipy.fftpack.realtransforms.dct(melspec, type=2, norm="ortho", axis=1)[:, 1:numcep+1]
         mfcc = liftering(melceps, ceplifter)
