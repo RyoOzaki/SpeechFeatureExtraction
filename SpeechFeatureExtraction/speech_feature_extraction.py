@@ -70,6 +70,7 @@ class Extractor(object):
     def load(self, wav_file, phn_file, wrd_file, label_format="frame"):
         assert self._phn is not None, "Phoneme list is not loaded."
         assert self._wrd is not None, "Word list is not loaded."
+        assert label_format in ("frame", "time")
         fs, data = self._loader.load(wav_file)
         N = data.shape[0]
         window_frame = int(self._mfcc_cording_params["winlen"] * fs)
@@ -79,10 +80,10 @@ class Extractor(object):
         mfcc_dd = delta(mfcc_d, self._delta_cording_param)
         M = mfcc.shape[0]
         if label_format == "time":
-            window_frame = self._mfcc_cording_params["winlen"]
-            step_frame = self._mfcc_cording_params["winstep"]
-        phn = _label_cord(phn_file, self._phn, M, window_frame, step_frame)
-        wrd = _label_cord(wrd_file, self._wrd, M, window_frame, step_frame)
+            window_len = self._mfcc_cording_params["winlen"]
+            step_len = self._mfcc_cording_params["winstep"]
+        phn = _label_cord(phn_file, self._phn, M, window_len, step_len)
+        wrd = _label_cord(wrd_file, self._wrd, M, window_len, step_len)
         return ((mfcc, mfcc_d, mfcc_dd), phn, wrd)
 
     def _mfcc_cord(self, fs, data, fft_size=-1):
@@ -149,7 +150,6 @@ def liftering(cepstra, ceplifter):
         # values of L <= 0, do nothing
         return cepstra
 
-
 def split(raw_data, samplerate, winlen, winstep, nfft=-1):
     win_frame = int(winlen * samplerate)
     step_frame = int(winstep * samplerate)
@@ -159,7 +159,7 @@ def split(raw_data, samplerate, winlen, winstep, nfft=-1):
     assert win_frame <= nfft
     N = ceil((raw_data.shape[0] - win_frame) / step_frame) + 1
     raw_data = np.concatenate((raw_data, np.zeros((N-1)*step_frame+win_frame)), axis=0)
-    indexies = np.arange(win_frame) + (np.arange(N) * step_frame).reshape((-1, 1)) + 1
+    indexies = np.arange(win_frame) + (np.arange(N) * step_frame).reshape((-1, 1))
     offset = nfft - win_frame
     left_padding = np.zeros((N, offset // 2))
     right_padding = np.zeros((N, offset - (offset // 2)))
