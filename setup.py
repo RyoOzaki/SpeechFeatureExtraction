@@ -9,5 +9,5 @@ setup(
     url='https://github.com/RyoOzaki/SparseAutoencoder',
     license=license,
     install_requires=['numpy', 'scipy', 'python-speech-features', 'sphfile'],
-    packages=['SpeechFeatureExtraction', 'SpeechFeatureExtraction.util']
+    packages=['speech_feature_extraction', 'speech_feature_extraction.util']
 )
