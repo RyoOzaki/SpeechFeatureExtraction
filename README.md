@@ -14,13 +14,13 @@ E-mail: ryo.ozaki@em.ci.ritsumei.ac.jp
   ```
 2. Write code
 
-  2-1. Import<br>
+  1. Import<br>
     ```
     from speech_feature_extraction import Extractor
     from speech_feature_extraction.util import WavLoader, SPHLoader
     ```
 
-  2-2. Make an instance of Extractor with specifying WavLoader or SPHLoader
+  2. Make an instance of Extractor with specifying WavLoader or SPHLoader
     ```
     extractor = Extractor(<Loader>, phn_list=<List of phoneme labels>, wrd_list=<List of word labels>)
     ```
@@ -37,7 +37,7 @@ E-mail: ryo.ozaki@em.ci.ritsumei.ac.jp
     ```
     In this case, the label "sil" is inserted to index 0.
 
-  2-3. Extract features
+  3. Extract features
     ```
     extractor.load(<Wave file>, <Phoneme label file>, <Word label file>)
     ```
