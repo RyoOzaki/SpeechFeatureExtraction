@@ -80,6 +80,9 @@ class Extractor(object):
         if label_format == "time":
             window_len = self._mfcc_cording_params["winlen"]
             step_len = self._mfcc_cording_params["winstep"]
+        else:
+            window_len = int(self._mfcc_cording_params["winlen"] * fs)
+            step_len = int(self._mfcc_cording_params["winstep"] * fs)
         phn = _label_cord(phn_file, self._phn, M, window_len, step_len)
         wrd = _label_cord(wrd_file, self._wrd, M, window_len, step_len)
         return (mfcc, mfcc_d, mfcc_dd), phn, wrd
