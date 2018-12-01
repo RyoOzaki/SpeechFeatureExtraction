@@ -35,7 +35,7 @@ class Extractor(object):
     _default_mfcc_cording_params={
         "winlen": 25.0 / 1000,
         "winstep": 10.0 / 1000,
-        "numcep": 13,
+        "numcep": 12,
         "nfilt": 20,
         "preemph": 0.97,
         "ceplifter": 22,
@@ -45,6 +45,7 @@ class Extractor(object):
 
     def __init__(self, wav_loader, phn_list=None, wrd_list=None, delta_cording_param=2, **kwargs):
         self._mfcc_cording_params = dict(Extractor._default_mfcc_cording_params.copy(), **kwargs)
+        self._mfcc_cording_params["numcep"] += 1
         self._delta_cording_param = delta_cording_param
         self._loader = wav_loader
         self._phn  = phn_list
