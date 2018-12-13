@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='SpeechFeatureExtraction',
-    version='0.0.1',
+    version='0.0.2',
     description='Package of the speech feature extraction',
     author='Ryo Ozaki',
     author_email='ryo.ozaki@em.ci.ritsumei.ac.jp',
