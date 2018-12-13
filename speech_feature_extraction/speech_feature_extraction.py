@@ -73,7 +73,6 @@ class Extractor(object):
         assert self._wrd is not None, "Word list is not loaded."
         assert label_format in ("frame", "time")
         fs, data = self._loader.load(wav_file)
-        N = data.shape[0]
         mfcc = self._mfcc_cord(data, fs)
         mfcc_d = delta(mfcc, self._delta_cording_param)
         mfcc_dd = delta(mfcc_d, self._delta_cording_param)
@@ -87,6 +86,13 @@ class Extractor(object):
         phn = _label_cord(phn_file, self._phn, M, window_len, step_len)
         wrd = _label_cord(wrd_file, self._wrd, M, window_len, step_len)
         return (mfcc, mfcc_d, mfcc_dd), phn, wrd
+
+    def load_without_label(self, wav_file):
+        fs, data = self._loader.load(wav_file)
+        mfcc = self._mfcc_cord(data, fs)
+        mfcc_d = delta(mfcc, self._delta_cording_param)
+        mfcc_dd = delta(mfcc_d, self._delta_cording_param)
+        return mfcc, mfcc_d, mfcc_dd
 
     def _mfcc_cord(self, data, fs):
         kwargs = self._mfcc_cording_params

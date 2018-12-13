@@ -48,6 +48,10 @@ E-mail: ryo.ozaki@em.ci.ritsumei.ac.jp
   ```
   (mfcc, d_mfcc, dd_mfcc), p_lab, w_lab = extractor.load(****)
   ```
+  If you unnecessary the labels, please use "load_without_label."
+  ```
+  mfccm d_mfcc, dd_mfcc = extractor.load_without_label(<Wave file>)
+  ```
 
 ---------
 ## Additional information
