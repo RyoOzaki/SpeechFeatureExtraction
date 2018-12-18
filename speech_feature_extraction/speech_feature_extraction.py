@@ -1,5 +1,6 @@
 import numpy as np
 from python_speech_features import mfcc, delta
+from python_speech_features.sigproc import preemphasis, framesig, powspec, logpowspec
 from math import ceil, floor
 
 def _load_label_list(files, sp=None):
@@ -76,7 +77,6 @@ class Extractor(object):
         mfcc = self._mfcc_cord(data, fs)
         mfcc_d = delta(mfcc, self._delta_cording_param)
         mfcc_dd = delta(mfcc_d, self._delta_cording_param)
-        M = mfcc.shape[0]
         if label_format == "time":
             window_len = self._mfcc_cording_params["winlen"]
             step_len = self._mfcc_cording_params["winstep"]
@@ -94,7 +94,71 @@ class Extractor(object):
         mfcc_dd = delta(mfcc_d, self._delta_cording_param)
         return mfcc, mfcc_d, mfcc_dd
 
+    def load_powspec(self, wav_file, phn_file, wrd_file, label_format="frame"):
+        assert self._phn is not None, "Phoneme list is not loaded."
+        assert self._wrd is not None, "Word list is not loaded."
+        assert label_format in ("frame", "time")
+        fs, data = self._loader.load(wav_file)
+        pspec = self._powspec_cord(data, fs)
+        if label_format == "time":
+            window_len = self._mfcc_cording_params["winlen"]
+            step_len = self._mfcc_cording_params["winstep"]
+        else:
+            window_len = int(self._mfcc_cording_params["winlen"] * fs)
+            step_len = int(self._mfcc_cording_params["winstep"] * fs)
+        phn = _label_cord(phn_file, self._phn, M, window_len, step_len)
+        wrd = _label_cord(wrd_file, self._wrd, M, window_len, step_len)
+        return pspec, phn, wrd
+
+    def load_logpowspec(self, wav_file, phn_file, wrd_file, label_format="frame"):
+        assert self._phn is not None, "Phoneme list is not loaded."
+        assert self._wrd is not None, "Word list is not loaded."
+        assert label_format in ("frame", "time")
+        fs, data = self._loader.load(wav_file)
+        pspec = self._logpowspec_cord(data, fs)
+        if label_format == "time":
+            window_len = self._mfcc_cording_params["winlen"]
+            step_len = self._mfcc_cording_params["winstep"]
+        else:
+            window_len = int(self._mfcc_cording_params["winlen"] * fs)
+            step_len = int(self._mfcc_cording_params["winstep"] * fs)
+        phn = _label_cord(phn_file, self._phn, M, window_len, step_len)
+        wrd = _label_cord(wrd_file, self._wrd, M, window_len, step_len)
+        return pspec, phn, wrd
+
+    def load_powspec_without_label(self, wav_file):
+        fs, data = self._loader.load(wav_file)
+        pspec = self._powspec_cord(data, fs)
+        return pspec
+
+    def load_logpowspec_without_label(self, wav_file):
+        fs, data = self._loader.load(wav_file)
+        pspec = self._logpowspec_cord(data, fs)
+        return pspec
+
     def _mfcc_cord(self, data, fs):
         kwargs = self._mfcc_cording_params
         fft_size = int(kwargs["winlen"] * fs)
         return mfcc(data, samplerate=fs, nfft=fft_size, **kwargs)[:, 1:]
+
+    def _powspec_cord(self, data, fs):
+        kwargs = self._mfcc_cording_params
+        preemph = kwargs["preemph"]
+        winlen = kwargs["winlen"]
+        winstep = kwargs["winstep"]
+        winfunc = kwargs["winfunc"]
+        fft_size = int(winlen * fs)
+        data = preemphasis(data, preemph)
+        frames = framesig(data, winlen * fs, winstep * fs, winfunc)
+        return powspec(frames, fft_size)
+
+    def _logpowspec_cord(self, data, fs):
+        kwargs = self._mfcc_cording_params
+        preemph = kwargs["preemph"]
+        winlen = kwargs["winlen"]
+        winstep = kwargs["winstep"]
+        winfunc = kwargs["winfunc"]
+        fft_size = int(winlen * fs)
+        data = preemphasis(data, preemph)
+        frames = framesig(data, winlen * fs, winstep * fs, winfunc)
+        return logpowspec(frames, fft_size)
