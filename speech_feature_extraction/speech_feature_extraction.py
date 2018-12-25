@@ -83,6 +83,7 @@ class Extractor(object):
         else:
             window_len = int(self._mfcc_cording_params["winlen"] * fs)
             step_len = int(self._mfcc_cording_params["winstep"] * fs)
+        M = mfcc.shape[0]
         phn = _label_cord(phn_file, self._phn, M, window_len, step_len)
         wrd = _label_cord(wrd_file, self._wrd, M, window_len, step_len)
         return (mfcc, mfcc_d, mfcc_dd), phn, wrd
@@ -106,6 +107,7 @@ class Extractor(object):
         else:
             window_len = int(self._mfcc_cording_params["winlen"] * fs)
             step_len = int(self._mfcc_cording_params["winstep"] * fs)
+        M = pspec.shape[0]
         phn = _label_cord(phn_file, self._phn, M, window_len, step_len)
         wrd = _label_cord(wrd_file, self._wrd, M, window_len, step_len)
         return pspec, phn, wrd
@@ -122,6 +124,7 @@ class Extractor(object):
         else:
             window_len = int(self._mfcc_cording_params["winlen"] * fs)
             step_len = int(self._mfcc_cording_params["winstep"] * fs)
+        M = pspec.shape[0]
         phn = _label_cord(phn_file, self._phn, M, window_len, step_len)
         wrd = _label_cord(wrd_file, self._wrd, M, window_len, step_len)
         return pspec, phn, wrd
