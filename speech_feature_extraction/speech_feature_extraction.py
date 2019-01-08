@@ -164,4 +164,6 @@ class Extractor(object):
         fft_size = int(winlen * fs)
         data = preemphasis(data, preemph)
         frames = framesig(data, winlen * fs, winstep * fs, winfunc)
-        return logpowspec(frames, fft_size, norm=False)
+        ps = powspec(frames, fft_size)
+        return np.log(ps + 1.0)
+        # return logpowspec(frames, fft_size, norm=False)
