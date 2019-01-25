@@ -33,7 +33,7 @@ def _label_cord(label_file, label_list, length, window_frame, step_frame, init_v
 
 class Extractor(object):
 
-    _default_mfcc_cording_params={
+    _default_cording_params={
         "winlen": 25.0 / 1000,
         "winstep": 10.0 / 1000,
         "numcep": 12,
@@ -41,12 +41,13 @@ class Extractor(object):
         "preemph": 0.97,
         "ceplifter": 22,
         "appendEnergy": False,
-        "winfunc": np.hamming
+        "winfunc": np.hamming,
+        "highfreq": None
     }
 
     def __init__(self, wav_loader, phn_list=None, wrd_list=None, delta_cording_param=2, **kwargs):
-        self._mfcc_cording_params = dict(Extractor._default_mfcc_cording_params.copy(), **kwargs)
-        self._mfcc_cording_params["numcep"] += 1
+        self._cording_params = dict(Extractor._default_cording_params.copy(), **kwargs)
+        self._cording_params["numcep"] += 1
         self._delta_cording_param = delta_cording_param
         self._loader = wav_loader
         self._phn  = phn_list
@@ -78,11 +79,11 @@ class Extractor(object):
         mfcc_d = delta(mfcc, self._delta_cording_param)
         mfcc_dd = delta(mfcc_d, self._delta_cording_param)
         if label_format == "time":
-            window_len = self._mfcc_cording_params["winlen"]
-            step_len = self._mfcc_cording_params["winstep"]
+            window_len = self._cording_params["winlen"]
+            step_len = self._cording_params["winstep"]
         else:
-            window_len = int(self._mfcc_cording_params["winlen"] * fs)
-            step_len = int(self._mfcc_cording_params["winstep"] * fs)
+            window_len = int(self._cording_params["winlen"] * fs)
+            step_len = int(self._cording_params["winstep"] * fs)
         M = mfcc.shape[0]
         phn = _label_cord(phn_file, self._phn, M, window_len, step_len)
         wrd = _label_cord(wrd_file, self._wrd, M, window_len, step_len)
@@ -102,11 +103,11 @@ class Extractor(object):
         fs, data = self._loader.load(wav_file)
         pspec = self._powspec_cord(data, fs)
         if label_format == "time":
-            window_len = self._mfcc_cording_params["winlen"]
-            step_len = self._mfcc_cording_params["winstep"]
+            window_len = self._cording_params["winlen"]
+            step_len = self._cording_params["winstep"]
         else:
-            window_len = int(self._mfcc_cording_params["winlen"] * fs)
-            step_len = int(self._mfcc_cording_params["winstep"] * fs)
+            window_len = int(self._cording_params["winlen"] * fs)
+            step_len = int(self._cording_params["winstep"] * fs)
         M = pspec.shape[0]
         phn = _label_cord(phn_file, self._phn, M, window_len, step_len)
         wrd = _label_cord(wrd_file, self._wrd, M, window_len, step_len)
@@ -119,11 +120,11 @@ class Extractor(object):
         fs, data = self._loader.load(wav_file)
         pspec = self._logpowspec_cord(data, fs)
         if label_format == "time":
-            window_len = self._mfcc_cording_params["winlen"]
-            step_len = self._mfcc_cording_params["winstep"]
+            window_len = self._cording_params["winlen"]
+            step_len = self._cording_params["winstep"]
         else:
-            window_len = int(self._mfcc_cording_params["winlen"] * fs)
-            step_len = int(self._mfcc_cording_params["winstep"] * fs)
+            window_len = int(self._cording_params["winlen"] * fs)
+            step_len = int(self._cording_params["winstep"] * fs)
         M = pspec.shape[0]
         phn = _label_cord(phn_file, self._phn, M, window_len, step_len)
         wrd = _label_cord(wrd_file, self._wrd, M, window_len, step_len)
@@ -140,12 +141,12 @@ class Extractor(object):
         return pspec
 
     def _mfcc_cord(self, data, fs):
-        kwargs = self._mfcc_cording_params
+        kwargs = self._cording_params
         fft_size = int(kwargs["winlen"] * fs)
         return mfcc(data, samplerate=fs, nfft=fft_size, **kwargs)[:, 1:]
 
     def _powspec_cord(self, data, fs):
-        kwargs = self._mfcc_cording_params
+        kwargs = self._cording_params
         preemph = kwargs["preemph"]
         winlen = kwargs["winlen"]
         winstep = kwargs["winstep"]
@@ -156,7 +157,7 @@ class Extractor(object):
         return powspec(frames, fft_size)
 
     def _logpowspec_cord(self, data, fs):
-        kwargs = self._mfcc_cording_params
+        kwargs = self._cording_params
         preemph = kwargs["preemph"]
         winlen = kwargs["winlen"]
         winstep = kwargs["winstep"]
