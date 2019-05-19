@@ -2,6 +2,7 @@ import numpy as np
 from python_speech_features import mfcc, delta
 from python_speech_features.sigproc import preemphasis, framesig, powspec, logpowspec
 from math import ceil, floor
+import re
 
 def _load_label_list(files, sp=None):
     s = set()
@@ -19,8 +20,20 @@ def _load_label_list(files, sp=None):
     return l
 
 def _load_raw_label(f):
-    raw_label = np.loadtxt(f, dtype=[('col1', 'f16'), ('col2', 'f16'), ('col3', 'S10')])
-    return raw_label
+    label_pattern = r"^(?P<begin_frame>\d+)\s+(?P<end_frame>\d+)\s(?P<label>.*)$"
+    body = f.read_text()
+    lines = body.split("\n")
+    lst = []
+    for line in lines:
+        if line.startswith("#"):
+            continue
+        m = re.search(label_pattern, line)
+        if m:
+            bf = int(m.group("begin_frame"))
+            ef = int(m.group("end_frame"))
+            lab = m.group("label")
+            lst.append((bf, ef, lab))
+    return lst
 
 def _label_cord(label_file, label_list, length, window_frame, step_frame, init_val=0):
     label_ary = np.ones(length, dtype=int) * init_val
