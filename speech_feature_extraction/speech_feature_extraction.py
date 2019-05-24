@@ -44,6 +44,13 @@ def _label_cord(label_file, label_list, length, window_frame, step_frame, init_v
         label_ary[left:right] = label_list.index(l)
     return label_ary
 
+def _label_cord_mfcc_frame(label_file, label_list, length, init_val=0):
+    label_ary = np.ones(length, dtype=int) * init_val
+    raw_labels = _load_raw_label(label_file)
+    for b,e,l in raw_labels:
+        label_ary[b:e+1] = label_list.index(l)
+    return label_ary
+
 class Extractor(object):
 
     _default_cording_params={
@@ -86,20 +93,24 @@ class Extractor(object):
     def load(self, wav_file, phn_file, wrd_file, label_format="frame"):
         assert self._phn is not None, "Phoneme list is not loaded."
         assert self._wrd is not None, "Word list is not loaded."
-        assert label_format in ("frame", "time")
+        assert label_format in ("frame", "time", "mfcc_frame")
         fs, data = self._loader.load(wav_file)
         mfcc = self._mfcc_cord(data, fs)
         mfcc_d = delta(mfcc, self._delta_cording_param)
         mfcc_dd = delta(mfcc_d, self._delta_cording_param)
-        if label_format == "time":
-            window_len = self._cording_params["winlen"]
-            step_len = self._cording_params["winstep"]
-        else:
-            window_len = int(self._cording_params["winlen"] * fs)
-            step_len = int(self._cording_params["winstep"] * fs)
         M = mfcc.shape[0]
-        phn = _label_cord(phn_file, self._phn, M, window_len, step_len)
-        wrd = _label_cord(wrd_file, self._wrd, M, window_len, step_len)
+        if label_format == "mfcc_frame":
+            phn = _label_cord_mfcc_frame(phn_file, self._phn, M)
+            wrd = _label_cord_mfcc_frame(wrd_file, self._wrd, M)
+        else:
+            if label_format == "time":
+                window_len = self._cording_params["winlen"]
+                step_len = self._cording_params["winstep"]
+            else:
+                window_len = int(self._cording_params["winlen"] * fs)
+                step_len = int(self._cording_params["winstep"] * fs)
+            phn = _label_cord(phn_file, self._phn, M, window_len, step_len)
+            wrd = _label_cord(wrd_file, self._wrd, M, window_len, step_len)
         return (mfcc, mfcc_d, mfcc_dd), phn, wrd
 
     def load_without_label(self, wav_file):
@@ -112,35 +123,43 @@ class Extractor(object):
     def load_powspec(self, wav_file, phn_file, wrd_file, label_format="frame"):
         assert self._phn is not None, "Phoneme list is not loaded."
         assert self._wrd is not None, "Word list is not loaded."
-        assert label_format in ("frame", "time")
+        assert label_format in ("frame", "time", "mfcc_frame")
         fs, data = self._loader.load(wav_file)
         pspec = self._powspec_cord(data, fs)
-        if label_format == "time":
-            window_len = self._cording_params["winlen"]
-            step_len = self._cording_params["winstep"]
-        else:
-            window_len = int(self._cording_params["winlen"] * fs)
-            step_len = int(self._cording_params["winstep"] * fs)
         M = pspec.shape[0]
-        phn = _label_cord(phn_file, self._phn, M, window_len, step_len)
-        wrd = _label_cord(wrd_file, self._wrd, M, window_len, step_len)
+        if label_format == "mfcc_frame":
+            phn = _label_cord_mfcc_frame(phn_file, self._phn, M)
+            wrd = _label_cord_mfcc_frame(wrd_file, self._wrd, M)
+        else:
+            if label_format == "time":
+                window_len = self._cording_params["winlen"]
+                step_len = self._cording_params["winstep"]
+            else:
+                window_len = int(self._cording_params["winlen"] * fs)
+                step_len = int(self._cording_params["winstep"] * fs)
+            phn = _label_cord(phn_file, self._phn, M, window_len, step_len)
+            wrd = _label_cord(wrd_file, self._wrd, M, window_len, step_len)
         return pspec, phn, wrd
 
     def load_logpowspec(self, wav_file, phn_file, wrd_file, label_format="frame"):
         assert self._phn is not None, "Phoneme list is not loaded."
         assert self._wrd is not None, "Word list is not loaded."
-        assert label_format in ("frame", "time")
+        assert label_format in ("frame", "time", "mfcc_frame")
         fs, data = self._loader.load(wav_file)
         pspec = self._logpowspec_cord(data, fs)
-        if label_format == "time":
-            window_len = self._cording_params["winlen"]
-            step_len = self._cording_params["winstep"]
-        else:
-            window_len = int(self._cording_params["winlen"] * fs)
-            step_len = int(self._cording_params["winstep"] * fs)
         M = pspec.shape[0]
-        phn = _label_cord(phn_file, self._phn, M, window_len, step_len)
-        wrd = _label_cord(wrd_file, self._wrd, M, window_len, step_len)
+        if label_format == "mfcc_frame":
+            phn = _label_cord_mfcc_frame(phn_file, self._phn, M)
+            wrd = _label_cord_mfcc_frame(wrd_file, self._wrd, M)
+        else:
+            if label_format == "time":
+                window_len = self._cording_params["winlen"]
+                step_len = self._cording_params["winstep"]
+            else:
+                window_len = int(self._cording_params["winlen"] * fs)
+                step_len = int(self._cording_params["winstep"] * fs)
+            phn = _label_cord(phn_file, self._phn, M, window_len, step_len)
+            wrd = _label_cord(wrd_file, self._wrd, M, window_len, step_len)
         return pspec, phn, wrd
 
     def load_powspec_without_label(self, wav_file):
