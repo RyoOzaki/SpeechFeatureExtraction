@@ -1,5 +1,5 @@
 import numpy as np
-from python_speech_features import mfcc, delta
+from python_speech_features import mfcc, delta, fbank
 from python_speech_features.sigproc import preemphasis, framesig, powspec, logpowspec
 from math import ceil, floor
 import re
@@ -89,7 +89,7 @@ class Extractor(object):
         self._wrd = _load_label_list(wrd_files, **kwargs)
         return self._wrd
 
-    #label_format = "frame" or "time"
+    #label_format = "frame" or "time" or "mfcc_frame"
     def load(self, wav_file, phn_file, wrd_file, label_format="frame"):
         assert self._phn is not None, "Phoneme list is not loaded."
         assert self._wrd is not None, "Word list is not loaded."
@@ -172,10 +172,41 @@ class Extractor(object):
         pspec = self._logpowspec_cord(data, fs)
         return pspec
 
+    #label_format = "frame" or "time" or "mfcc_frame"
+    def load_fbank(self, wav_file, phn_file, wrd_file, label_format="frame"):
+        assert self._phn is not None, "Phoneme list is not loaded."
+        assert self._wrd is not None, "Word list is not loaded."
+        assert label_format in ("frame", "time", "mfcc_frame")
+        fs, data = self._loader.load(wav_file)
+        fbank = self._fbank_code(data, fs)
+        M = fbank.shape[0]
+        if label_format == "mfcc_frame":
+            phn = _label_cord_mfcc_frame(phn_file, self._phn, M)
+            wrd = _label_cord_mfcc_frame(wrd_file, self._wrd, M)
+        else:
+            if label_format == "time":
+                window_len = self._cording_params["winlen"]
+                step_len = self._cording_params["winstep"]
+            else:
+                window_len = int(self._cording_params["winlen"] * fs)
+                step_len = int(self._cording_params["winstep"] * fs)
+            phn = _label_cord(phn_file, self._phn, M, window_len, step_len)
+            wrd = _label_cord(wrd_file, self._wrd, M, window_len, step_len)
+        return fbank, phn, wrd
+
     def _mfcc_cord(self, data, fs):
         kwargs = self._cording_params
         fft_size = int(kwargs["winlen"] * fs)
         return mfcc(data, samplerate=fs, nfft=fft_size, **kwargs)[:, 1:]
+
+    def _fbank_code(self, data, fs):
+        kwargs = self._cording_params.copy()
+        fft_size = int(kwargs["winlen"] * fs)
+        kwargs.pop("numcep")
+        kwargs.pop("ceplifter")
+        kwargs.pop("appendEnergy")
+        feat, _ = fbank(data, samplerate=fs, nfft=fft_size, **kwargs)
+        return feat
 
     def _powspec_cord(self, data, fs):
         kwargs = self._cording_params
